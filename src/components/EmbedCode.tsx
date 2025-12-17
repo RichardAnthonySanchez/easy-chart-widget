@@ -6,17 +6,18 @@ import { useToast } from "@/hooks/use-toast";
 interface EmbedCodeProps {
   data: { category: string; value: number }[];
   chartType: string;
+  valueLabel?: string;
 }
 
-export function EmbedCode({ data, chartType }: EmbedCodeProps) {
+export function EmbedCode({ data, chartType, valueLabel = "Values" }: EmbedCodeProps) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
   // Generate a data URL with the chart configuration
   const chartConfig = encodeURIComponent(
-    JSON.stringify({ data, chartType })
+    JSON.stringify({ data, chartType, valueLabel })
   );
-  
+
   const embedCode = `<iframe src="${window.location.origin}/embed?config=${chartConfig}" width="100%" height="400" frameborder="0" style="border-radius: 8px;"></iframe>`;
 
   const handleCopy = async () => {

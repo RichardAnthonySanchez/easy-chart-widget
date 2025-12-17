@@ -3,6 +3,12 @@ import { ChartTypeSelector } from "@/components/ChartTypeSelector";
 import { JsonInput } from "@/components/JsonInput";
 import { ChartPreview } from "@/components/ChartPreview";
 import { EmbedCode } from "@/components/EmbedCode";
+import { LabelInput } from "@/components/LabelInput";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 type ChartType = "bar" | "line" | "pie" | "doughnut";
 
@@ -21,6 +27,8 @@ const Index = () => {
   const [chartType, setChartType] = useState<ChartType>("bar");
   const [chartData, setChartData] = useState<{ category: string; value: number }[]>(SAMPLE_DATA);
   const [error, setError] = useState<string | null>(null);
+  const [valueLabel, setValueLabel] = useState("Values");
+  const [showLabelInput, setShowLabelInput] = useState(false);
 
   // Auto-generate on chart type change
   useEffect(() => {
@@ -31,19 +39,19 @@ const Index = () => {
   const handleGenerate = () => {
     try {
       const parsed = JSON.parse(jsonInput);
-      
+
       // Validate the structure
       if (!Array.isArray(parsed)) {
         throw new Error("JSON must be an array of objects");
       }
-      
+
       const validated = parsed.map((item, index) => {
         if (typeof item.category !== "string" || typeof item.value !== "number") {
           throw new Error(`Item ${index + 1}: Each object needs "category" (string) and "value" (number)`);
         }
         return { category: item.category, value: item.value };
       });
-      
+
       setChartData(validated);
       setError(null);
     } catch (err) {
@@ -70,6 +78,8 @@ const Index = () => {
         {/* Chart Type Selector */}
         <ChartTypeSelector selected={chartType} onSelect={setChartType} />
 
+
+
         {/* JSON Input */}
         <JsonInput
           value={jsonInput}
@@ -79,10 +89,22 @@ const Index = () => {
         />
 
         {/* Chart Preview */}
-        <ChartPreview data={chartData} chartType={chartType} />
+        <ChartPreview data={chartData} chartType={chartType} valueLabel={valueLabel} />
+
+        {/* Label Input */}
+        <Collapsible open={showLabelInput} onOpenChange={setShowLabelInput}>
+          <div className="flex justify-center">
+            <CollapsibleTrigger className="text-sm text-primary hover:underline focus:outline-none">
+              {showLabelInput ? '− Hide label customization' : '+ Customize value label'}
+            </CollapsibleTrigger>
+          </div>
+          <CollapsibleContent className="mt-4">
+            <LabelInput value={valueLabel} onChange={setValueLabel} />
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Embed Code */}
-        <EmbedCode data={chartData} chartType={chartType} />
+        <EmbedCode data={chartData} chartType={chartType} valueLabel={valueLabel} />
 
         {/* Footer */}
         <footer className="text-center text-sm text-muted-foreground pt-4">

@@ -1,73 +1,94 @@
-# Welcome to your Lovable project
+# Easy Chart Widget
 
-## Project info
+A single-page, no-code / low-code tool for **non-technical bloggers** to turn JSON data into charts and export them as **copy‑paste embeds**.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+![preview of the app](./public/app-preview.jpg)
 
-## How can I edit this code?
+**Mental model:**
 
-There are several ways of editing your application.
+> Paste JSON → Choose chart → Preview instantly → Copy embed
 
-**Use Lovable**
+No setup. No config files. No jargon.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## What This App Does
 
-**Use your preferred IDE**
+* Accepts raw JSON data (or loads built‑in dummy data)
+* Converts the data into a visual chart
+* Lets users switch between chart types
+* Generates a ready‑to‑paste embed that works on any site
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Core Features (MVP)
 
-Follow these steps:
+### 1. Data Input
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+* JSON textarea input
+* "Load dummy data" button
+* Generate chart
+* Take screenshot or copy embed code
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 2. Chart Type Selector
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Users can switch between:
 
-**Edit a file directly in GitHub**
+* Bar
+* Line
+* Pie
+* Doughnut
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The chart updates instantly when the type changes.
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 3. Live Chart Preview
 
-## What technologies are used for this project?
+* Responsive preview canvas
+* Immediate feedback on data or chart changes
 
-This project is built with:
+**Library used**
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+* `recharts`
 
-## How can I deploy this project?
+Recharts handles all interactive rendering inside the application.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+### 5. Embed Export
 
-Yes, you can!
+The app generates a **embed** that users can paste anywhere.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Supported formats:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+* Inline embed
+* Screenshots
+
+---
+
+## Tech Stack
+
+### Required
+
+* React
+* Vite
+* Recharts
+* Tailwind CSS
+
+---
+
+## Non‑Goals
+
+* No dashboards
+* No saved user accounts
+* No complex chart configuration
+
+---
+
+## Development Notes
+
+* The app itself uses **Recharts** for previewing charts
+* The embed output is treated as a portable artifact, not a live connection to the app

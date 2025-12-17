@@ -20,6 +20,7 @@ type ChartType = "bar" | "line" | "pie" | "doughnut";
 interface ChartPreviewProps {
   data: { category: string; value: number }[];
   chartType: ChartType;
+  valueLabel?: string;
 }
 
 const COLORS = [
@@ -31,7 +32,7 @@ const COLORS = [
   "hsl(180, 60%, 45%)",   // teal
 ];
 
-export function ChartPreview({ data, chartType }: ChartPreviewProps) {
+export function ChartPreview({ data, chartType, valueLabel = "Values" }: ChartPreviewProps) {
   if (data.length === 0) {
     return (
       <div className="bg-card rounded-lg p-6 card-elevated border border-border">
@@ -46,27 +47,28 @@ export function ChartPreview({ data, chartType }: ChartPreviewProps) {
     switch (chartType) {
       case "bar":
         return (
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={data} margin={{ top: 30, right: 30, left: 20, bottom: 5 }}>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={data} margin={{ top: 40, right: 30, left: 20, bottom: 5 }} barSize={60}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis 
-                dataKey="category" 
+              <XAxis
+                dataKey="category"
                 tick={{ fill: "hsl(var(--muted-foreground))" }}
                 axisLine={{ stroke: "hsl(var(--border))" }}
               />
-              <YAxis 
+              <YAxis
                 tick={{ fill: "hsl(var(--muted-foreground))" }}
                 axisLine={{ stroke: "hsl(var(--border))" }}
+                label={{ value: valueLabel, angle: -90, position: 'insideLeft', style: { fill: 'hsl(var(--muted-foreground))' } }}
               />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: "hsl(var(--card))", 
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--card))",
                   border: "1px solid hsl(var(--border))",
                   borderRadius: "8px"
                 }}
               />
               <Legend />
-              <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="value" name={valueLabel} radius={[4, 4, 0, 0]}>
                 {data.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
@@ -81,26 +83,27 @@ export function ChartPreview({ data, chartType }: ChartPreviewProps) {
           <ResponsiveContainer width="100%" height={350}>
             <LineChart data={data} margin={{ top: 30, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis 
-                dataKey="category" 
+              <XAxis
+                dataKey="category"
                 tick={{ fill: "hsl(var(--muted-foreground))" }}
                 axisLine={{ stroke: "hsl(var(--border))" }}
               />
-              <YAxis 
+              <YAxis
                 tick={{ fill: "hsl(var(--muted-foreground))" }}
                 axisLine={{ stroke: "hsl(var(--border))" }}
               />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: "hsl(var(--card))", 
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--card))",
                   border: "1px solid hsl(var(--border))",
                   borderRadius: "8px"
                 }}
               />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="value" 
+              <Line
+                type="monotone"
+                dataKey="value"
+                name={valueLabel}
                 stroke={COLORS[0]}
                 strokeWidth={3}
                 dot={{ fill: COLORS[0], strokeWidth: 2, r: 6 }}
@@ -125,15 +128,16 @@ export function ChartPreview({ data, chartType }: ChartPreviewProps) {
                 innerRadius={chartType === "doughnut" ? 60 : 0}
                 fill="#8884d8"
                 dataKey="value"
+                nameKey="category"
                 paddingAngle={2}
               >
                 {data.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: "hsl(var(--card))", 
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--card))",
                   border: "1px solid hsl(var(--border))",
                   borderRadius: "8px"
                 }}
