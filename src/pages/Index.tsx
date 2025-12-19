@@ -95,7 +95,7 @@ const Index = () => {
         {/* Header */}
         <header className="text-center space-y-3">
           <h1 className="text-3xl sm:text-4xl font-bold text-gradient">
-            Convert JSON/CSV to Charts Easily
+            Convert JSON to Charts Easily
           </h1>
           <p className="text-muted-foreground text-lg">
             No-code tool to transform your data into beautiful charts.
@@ -157,7 +157,7 @@ const Index = () => {
 
         {/* Footer */}
         <footer className="text-center text-sm text-muted-foreground pt-4">
-          Paste JSON/CSV • Pick chart type • Copy embed code
+          Paste JSON • Pick chart type • Copy embed code
         </footer>
       </div>
     </div>
