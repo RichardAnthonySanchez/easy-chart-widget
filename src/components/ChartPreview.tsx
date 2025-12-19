@@ -31,6 +31,7 @@ interface ChartPreviewProps {
   data: { category: string; value: number }[];
   chartType: ChartType;
   valueLabel?: string;
+  minimal?: boolean;
 }
 
 const COLORS = [
@@ -42,7 +43,7 @@ const COLORS = [
   "hsl(180, 60%, 45%)",   // teal
 ];
 
-export function ChartPreview({ data, chartType, valueLabel = "Values" }: ChartPreviewProps) {
+export function ChartPreview({ data, chartType, valueLabel = "Values", minimal = false }: ChartPreviewProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPNG = () => {
@@ -200,35 +201,37 @@ export function ChartPreview({ data, chartType, valueLabel = "Values" }: ChartPr
   };
 
   return (
-    <div className="bg-card rounded-lg p-6 card-elevated border border-border animate-fade-in">
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
+    <div className={`${minimal ? "" : "bg-card rounded-lg p-6 card-elevated border border-border"} animate-fade-in`}>
+      {!minimal && (
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-between items-center">
+            <span className="bg-card px-4 text-sm font-medium text-muted-foreground">
+              Your Chart Preview:
+            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  Download
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleDownloadPNG}>
+                  Download as PNG
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDownloadSVG}>
+                  Download as SVG
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-        <div className="relative flex justify-between items-center">
-          <span className="bg-card px-4 text-sm font-medium text-muted-foreground">
-            Your Chart Preview:
-          </span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Download className="h-4 w-4" />
-                Download
-                <ChevronDown className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleDownloadPNG}>
-                Download as PNG
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDownloadSVG}>
-                Download as SVG
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-      <div className="mt-4" ref={chartContainerRef}>
+      )}
+      <div className={minimal ? "" : "mt-4"} ref={chartContainerRef}>
         {renderChart()}
       </div>
     </div>
