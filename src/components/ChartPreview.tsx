@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import {
   BarChart,
   Bar,
@@ -14,6 +15,15 @@ import {
   ResponsiveContainer,
   LabelList,
 } from "recharts";
+import { saveSvgAsPng, svgAsPngUri } from "save-svg-as-png";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Download, ChevronDown } from "lucide-react";
 
 type ChartType = "bar" | "line" | "pie" | "doughnut";
 
@@ -33,6 +43,46 @@ const COLORS = [
 ];
 
 export function ChartPreview({ data, chartType, valueLabel = "Values" }: ChartPreviewProps) {
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadPNG = () => {
+    if (!chartContainerRef.current) return;
+
+    const svgElement = chartContainerRef.current.querySelector("svg");
+    if (!svgElement) return;
+
+    const fileName = `chart-${chartType}-${Date.now()}.png`;
+    saveSvgAsPng(svgElement, fileName, {
+      scale: 2, // Higher resolution
+      backgroundColor: "white",
+    });
+  };
+
+  const handleDownloadSVG = () => {
+    if (!chartContainerRef.current) return;
+
+    const svgElement = chartContainerRef.current.querySelector("svg");
+    if (!svgElement) return;
+
+    // Clone the SVG to avoid modifying the original
+    const clonedSvg = svgElement.cloneNode(true) as SVGElement;
+
+    // Serialize SVG to string
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(clonedSvg);
+
+    // Create blob and download
+    const blob = new Blob([svgString], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `chart-${chartType}-${Date.now()}.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   if (data.length === 0) {
     return (
       <div className="bg-card rounded-lg p-6 card-elevated border border-border">
@@ -155,13 +205,30 @@ export function ChartPreview({ data, chartType, valueLabel = "Values" }: ChartPr
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-border" />
         </div>
-        <div className="relative flex justify-center">
+        <div className="relative flex justify-between items-center">
           <span className="bg-card px-4 text-sm font-medium text-muted-foreground">
             Your Chart Preview:
           </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Download className="h-4 w-4" />
+                Download
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleDownloadPNG}>
+                Download as PNG
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDownloadSVG}>
+                Download as SVG
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
-      <div className="mt-4">
+      <div className="mt-4" ref={chartContainerRef}>
         {renderChart()}
       </div>
     </div>
