@@ -24,10 +24,9 @@ export function ChartTypeSelector({ selected, onSelect }: ChartTypeSelectorProps
           className={`
             flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium
             transition-all duration-200 border
-            ${
-              selected === type
-                ? "bg-primary text-primary-foreground border-primary btn-glow"
-                : "bg-card text-foreground border-border hover:border-primary/50 hover:bg-secondary"
+            ${selected === type
+              ? "bg-primary text-primary-foreground border-primary btn-glow"
+              : "bg-card text-foreground border-border hover:border-primary/50 hover:bg-secondary"
             }
           `}
         >
