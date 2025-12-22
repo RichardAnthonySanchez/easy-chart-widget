@@ -35,6 +35,7 @@ const Index = () => {
   const [error, setError] = useState<string | null>(null);
   const [valueLabel, setValueLabel] = useState("Values");
   const [showLabelInput, setShowLabelInput] = useState(false);
+  const [showDataHelp, setShowDataHelp] = useState(false);
 
   // Auto-generate on mount
   useEffect(() => {
@@ -116,6 +117,49 @@ const Index = () => {
             </TabsList>
           </div>
 
+          {/* Data Source Help */}
+          <Collapsible open={showDataHelp} onOpenChange={setShowDataHelp}>
+            <div className="flex justify-center mt-4">
+              <CollapsibleTrigger className="text-sm text-primary hover:underline focus:outline-none">
+                {showDataHelp ? '− Hide data guide' : "+ Don't know where to get JSON or CSV data?"}
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent className="mt-4 bg-card rounded-lg p-6 border border-border animate-in fade-in slide-in-from-top-2">
+              <div className="text-sm space-y-4">
+                {inputType === "csv" ? (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-foreground">Getting CSV Data</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      CSV (Comma Separated Values) is the most common format for spreadsheet data.
+                      If you use Google Sheets, you can easily export your data.
+                    </p>
+                    <p>
+                      <a
+                        href="https://xfanatical.com/blog/how-to-export-google-sheets-as-csv/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                      >
+                        Learn how to export Google Sheets as CSV →
+                      </a>
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-foreground">Getting JSON Data</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Most modern relational databases have built-in commands to format query results as JSON directly within the engine.
+                      Consult your database's documentation for JSON data export.
+                    </p>
+                    <p className="text-muted-foreground leading-relaxed italic">
+                      Tip: You can also ask an LLM (like ChatGPT or Gemini) to format your raw data into JSON for you!
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
           <TabsContent value="json">
             <DataInput
               value={jsonInput}
@@ -136,6 +180,8 @@ const Index = () => {
             />
           </TabsContent>
         </Tabs>
+
+
 
         {/* Chart Preview */}
         <ChartPreview data={chartData} chartType={chartType} valueLabel={valueLabel} />
