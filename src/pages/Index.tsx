@@ -11,11 +11,17 @@ import {
 } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Papa from "papaparse";
+import { registry } from "@/lib/schema-adapter/registry";
+import { ConversionPreview } from "@/components/SchemaAdapter/ConversionPreview";
+import { SandboxFallback } from "@/components/SchemaAdapter/SandboxFallback";
+import { ConversionResult } from "@/lib/schema-adapter/types";
+import { CanonicalData, CanonicalDataItem } from "@/lib/schema-adapter/canonical-schema";
+import { AlertTriangle } from "lucide-react";
 
 type ChartType = "bar" | "line" | "pie" | "doughnut";
 type InputType = "json" | "csv";
 
-const SAMPLE_DATA = [
+const SAMPLE_DATA: CanonicalData = [
   { category: "Tech", value: 120 },
   { category: "Travel", value: 90 },
   { category: "Food", value: 150 },
@@ -31,11 +37,12 @@ const Index = () => {
   const [inputType, setInputType] = useState<InputType>("json");
 
   const [chartType, setChartType] = useState<ChartType>("bar");
-  const [chartData, setChartData] = useState<{ category: string; value: number }[]>(SAMPLE_DATA);
+  const [chartData, setChartData] = useState<CanonicalData>(SAMPLE_DATA);
   const [error, setError] = useState<string | null>(null);
   const [valueLabel, setValueLabel] = useState("Values");
   const [showLabelInput, setShowLabelInput] = useState(false);
   const [showDataHelp, setShowDataHelp] = useState(false);
+  const [pendingConversion, setPendingConversion] = useState<ConversionResult | null>(null);
 
   // Auto-generate on mount
   useEffect(() => {
@@ -45,19 +52,35 @@ const Index = () => {
 
   const handleGenerate = () => {
     try {
-      let validated: { category: string; value: number }[] = [];
+      let validated: CanonicalData = [];
 
       if (inputType === "json") {
         const parsed = JSON.parse(jsonInput);
-        if (!Array.isArray(parsed)) {
-          throw new Error("JSON must be an array of objects");
-        }
-        validated = parsed.map((item, index) => {
-          if (typeof item.category !== "string" || typeof item.value !== "number") {
-            throw new Error(`Item ${index + 1}: Each object needs "category" (string) and "value" (number)`);
+
+        // Use Registry to try and transform the data
+        const conversion = registry.tryTransform(parsed);
+
+        if (conversion) {
+          if (conversion.adapterName === "Canonical") {
+            validated = conversion.data;
+          } else {
+            // Found a match, show preview instead of immediate update
+            setPendingConversion({ ...conversion, data: conversion.data }); // We might want to store the raw parsed data too for the preview
+            setError(null);
+            return;
           }
-          return { category: item.category, value: item.value };
-        });
+        } else {
+          // Fallback to existing manual validation if no adapter matches
+          if (!Array.isArray(parsed)) {
+            throw new Error("JSON must be an array of objects");
+          }
+          validated = (parsed.map((item: any, index: number): CanonicalDataItem => {
+            if (typeof item.category !== "string" || typeof item.value !== "number") {
+              throw new Error(`Item ${index + 1}: Each object needs "category" (string) and "value" (number)`);
+            }
+            return { category: item.category, value: item.value };
+          }) as CanonicalData);
+        }
       } else {
         const parsed = Papa.parse(csvInput, { header: true, dynamicTyping: true });
 
@@ -65,7 +88,7 @@ const Index = () => {
           throw new Error(`CSV Error: ${parsed.errors[0].message}`);
         }
 
-        validated = (parsed.data as any[]).map((item, index) => {
+        validated = ((parsed.data as any[]).map((item, index): CanonicalDataItem => {
           // Find category and value columns regardless of case
           const keys = Object.keys(item);
           const categoryKey = keys.find(k => k.toLowerCase() === "category") || keys[0];
@@ -79,7 +102,7 @@ const Index = () => {
           }
 
           return { category, value };
-        });
+        }) as CanonicalData);
       }
 
       setChartData(validated);
@@ -87,6 +110,7 @@ const Index = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Invalid data format");
       setChartData([]);
+      setPendingConversion(null);
     }
   };
 
@@ -166,7 +190,7 @@ const Index = () => {
               inputType="json"
               onChange={setJsonInput}
               onGenerate={handleGenerate}
-              error={error}
+              error={null} // SandboxFallback handles JSON error now
             />
           </TabsContent>
 
@@ -180,6 +204,43 @@ const Index = () => {
             />
           </TabsContent>
         </Tabs>
+
+        {/* Errors & Conversion Flow */}
+        <div className="space-y-4">
+          {error && inputType === "json" && !pendingConversion && (
+            <SandboxFallback error={error} />
+          )}
+
+          {error && inputType === "csv" && (
+            <div className="bg-destructive/10 p-4 rounded-md border border-destructive/20 text-destructive text-sm animate-in fade-in slide-in-from-top-2">
+              <p className="font-semibold flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                Error: {error}
+              </p>
+            </div>
+          )}
+
+          {pendingConversion && (
+            <div className="animate-in slide-in-from-bottom-4 duration-500">
+              <ConversionPreview
+                adapterName={pendingConversion.adapterName}
+                originalData={JSON.parse(jsonInput)}
+                convertedData={pendingConversion.data}
+                isAmbiguous={pendingConversion.isAmbiguous}
+                options={pendingConversion.options}
+                onApply={(finalData) => {
+                  setChartData(finalData);
+                  setJsonInput(JSON.stringify(finalData, null, 2));
+                  setPendingConversion(null);
+                  setError(null);
+                }}
+                onCancel={() => {
+                  setPendingConversion(null);
+                }}
+              />
+            </div>
+          )}
+        </div>
 
 
 
@@ -206,7 +267,7 @@ const Index = () => {
           Paste JSON • Pick chart type • Copy embed code
         </footer>
       </div>
-    </div>
+    </div >
   );
 };
 
