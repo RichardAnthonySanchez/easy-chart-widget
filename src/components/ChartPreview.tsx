@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { CanonicalData } from "@/lib/schema-adapter/canonical-schema";
 import {
   BarChart,
   Bar,
@@ -28,7 +29,7 @@ import { Download, ChevronDown } from "lucide-react";
 type ChartType = "bar" | "line" | "pie" | "doughnut";
 
 interface ChartPreviewProps {
-  data: { category: string; value: number }[];
+  data: CanonicalData;
   chartType: ChartType;
   valueLabel?: string;
   minimal?: boolean;

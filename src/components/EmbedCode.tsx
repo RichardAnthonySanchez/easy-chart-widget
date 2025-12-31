@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { CanonicalData } from "@/lib/schema-adapter/canonical-schema";
 import { Button } from "@/components/ui/button";
 import { Code, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface EmbedCodeProps {
-  data: { category: string; value: number }[];
+  data: CanonicalData;
   chartType: string;
   valueLabel?: string;
 }
