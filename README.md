@@ -69,6 +69,22 @@ Supported formats:
 
 ---
 
+## Architecture Overview
+
+For a detailed breakdown of the system design and data flow, please refer to the [Architecture Documentation](docs/architecture.md).
+
+```mermaid
+graph TD
+    A[User Input] --> B[DataInput Component]
+    B --> C[SchemaAdapter]
+    C --> D[Canonical Schema]
+    D --> E[ChartPreview Component]
+    E --> F[Recharts Rendering]
+    E --> G[EmbedCode Generation]
+```
+
+---
+
 ## Tech Stack
 
 ### Required
